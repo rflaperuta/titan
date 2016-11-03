@@ -27,4 +27,5 @@ bool db_update_entry(int id, Entry_t *new_entry);
 bool db_delete_entry(int id, bool *changes);
 Entry_t *db_get_entry_by_id(int id);
 
+
 #endif

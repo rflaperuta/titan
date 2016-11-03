@@ -96,7 +96,8 @@ int main(int argc, char *argv[])
         case 'c':
             edit_entry(atoi(optarg));
             break;
-        case 'l'://list one by id
+        case 'l':
+            list_by_id(atoi(optarg), show_password);
             break;
         case 'A'://list all
             break;

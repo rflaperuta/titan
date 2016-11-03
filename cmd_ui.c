@@ -230,3 +230,37 @@ bool remove_entry(int id)
 
     return false;
 }
+
+void list_by_id(int id, int show_password)
+{
+    if(!has_lock())
+    {
+        fprintf(stderr, "No decrypted database found\n");
+        return;
+    }
+
+    Entry_t *entry = db_get_entry_by_id(id);
+
+    if(!entry)
+        return;
+
+
+    if(entry->id == -1)
+    {
+        printf("Nothing found with id %d\n", id);
+        free(entry);
+        return;
+    }
+
+    fprintf(stdout, "Title: %s\n", entry->title);
+    fprintf(stdout, "User:  %s\n", entry->user);
+    fprintf(stdout, "Url:   %s\n", entry->url);
+    fprintf(stdout, "Notes: %s\n", entry->notes);
+
+    if(show_password == 1)
+        fprintf(stdout, "Password: %s\n", entry->password);
+    else
+        fprintf(stdout, "Password: **********\n");
+
+    entry_free(entry);
+}
