@@ -282,3 +282,14 @@ void list_all(int show_password)
 
     db_list_all(show_password);
 }
+
+void find(const char *search, int show_password)
+{
+    if(!has_lock())
+    {
+        fprintf(stderr, "No decrypted database found\n");
+        return;
+    }
+
+    db_find(search, show_password);
+}

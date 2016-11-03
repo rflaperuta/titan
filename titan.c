@@ -91,7 +91,8 @@ int main(int argc, char *argv[])
         case 'r':
             remove_entry(atoi(optarg));
             break;
-        case 'f'://find
+        case 'f':
+            find(optarg, show_password);
             break;
         case 'c':
             edit_entry(atoi(optarg));
