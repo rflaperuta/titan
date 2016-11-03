@@ -99,7 +99,8 @@ int main(int argc, char *argv[])
         case 'l':
             list_by_id(atoi(optarg), show_password);
             break;
-        case 'A'://list all
+        case 'A':
+            list_all(show_password);
             break;
         case 'g':
             break;

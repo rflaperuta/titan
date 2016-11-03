@@ -252,6 +252,7 @@ void list_by_id(int id, int show_password)
         return;
     }
 
+    fprintf(stdout, "=====================================================================\n");
     fprintf(stdout, "Title: %s\n", entry->title);
     fprintf(stdout, "User:  %s\n", entry->user);
     fprintf(stdout, "Url:   %s\n", entry->url);
@@ -262,5 +263,22 @@ void list_by_id(int id, int show_password)
     else
         fprintf(stdout, "Password: **********\n");
 
+    fprintf(stdout, "=====================================================================\n");
     entry_free(entry);
+}
+
+/* Loop through all entries in the database.
+ * At the moment printing to stdout is handled by sqlite callback.
+ * While it's ok for the command line, but if we ever need GUI
+ * then this needs to be designed better using a linked list etc.
+ */
+void list_all(int show_password)
+{
+    if(!has_lock())
+    {
+        fprintf(stderr, "No decrypted database found\n");
+        return;
+    }
+
+    db_list_all(show_password);
 }

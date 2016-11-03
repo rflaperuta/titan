@@ -25,5 +25,6 @@ bool add_new_entry();
 bool edit_entry(int id);
 bool remove_entry(int id);
 void list_by_id(int id, int show_password);
+void list_all(int show_password);
 
 #endif

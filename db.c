@@ -32,6 +32,7 @@
 /* sqlite callbacks */
 static int cb_check_integrity(void *notused, int argc, char **argv, char **column_name);
 static int cb_get_by_id(void *entry, int argc, char **argv, char **column_name);
+static int cb_list_all(void *show_password, int argc, char **argv, char **column_name);
 
 /*Run integrity check for the database to detect
  *malformed and corrupted databases. Returns true
@@ -367,6 +368,55 @@ bool db_delete_entry(int id, bool *changes)
     return true;
 }
 
+bool db_list_all(int show_password)
+{
+    char *path = NULL;
+    char *err = NULL;
+    sqlite3 *db;
+
+    path = read_lock();
+
+    if(!path)
+    {
+        fprintf(stderr, "Error getting database path\n");
+        return false;
+    }
+
+    if(!db_check_integrity(path))
+    {
+        fprintf(stderr, "Corrupted database. Abort.\n");
+        free(path);
+
+        return false;
+    }
+
+    int rc = sqlite3_open(path, &db);
+
+    if(rc != SQLITE_OK)
+    {
+        fprintf(stderr, "Error: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+
+        return false;
+    }
+
+    char *query = "select * from entries;";
+    rc = sqlite3_exec(db, query, cb_list_all, &show_password, &err);
+
+    if(rc != SQLITE_OK)
+    {
+        fprintf(stderr, "Error: %s\n", err);
+        sqlite3_free(err);
+        sqlite3_close(db);
+
+        return false;
+    }
+
+    sqlite3_close(db);
+
+    return true;
+}
+
 static int cb_check_integrity(void *notused, int argc, char **argv, char **column_name)
 {
     for(int i = 0; i < argc; i++)
@@ -379,6 +429,29 @@ static int cb_check_integrity(void *notused, int argc, char **argv, char **colum
 		return 1;
 	}
     }
+
+    return 0;
+}
+
+static int cb_list_all(void *show_password, int argc, char **argv, char **column_name)
+{
+    fprintf(stdout, "=====================================================================\n");
+    fprintf(stdout, "ID: %s\n",        argv[0]);
+    fprintf(stdout, "Title: %s\n",     argv[1]);
+    fprintf(stdout, "User: %s\n",      argv[2]);
+    fprintf(stdout, "Url: %s\n",       argv[3]);
+
+    int defer = *(int *)show_password;
+
+    if(defer == 1)
+        fprintf(stdout, "Password: %s\n", argv[4]);
+    else
+        fprintf(stdout, "Password: **********\n");
+
+    fprintf(stdout, "Notes: %s\n",     argv[5]);
+    fprintf(stdout, "Modified: %s\n",  argv[6]);
+
+    fprintf(stdout, "=====================================================================\n");
 
     return 0;
 }
