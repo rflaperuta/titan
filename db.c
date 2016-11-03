@@ -456,8 +456,6 @@ bool db_find(const char *search, int show_password)
                                   "or url like '%%%q%%' "
                                   "or notes like '%%%q%%';", search, search, search, search);
 
-    printf("%s\n", query);
-
     rc = sqlite3_exec(db, query, cb_find, &show_password, &err);
 
     if(rc != SQLITE_OK)
