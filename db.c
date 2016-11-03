@@ -397,6 +397,7 @@ bool db_list_all(int show_password)
     {
         fprintf(stderr, "Error: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
+        free(path);
 
         return false;
     }
@@ -409,11 +410,13 @@ bool db_list_all(int show_password)
         fprintf(stderr, "Error: %s\n", err);
         sqlite3_free(err);
         sqlite3_close(db);
+        free(path);
 
         return false;
     }
 
     sqlite3_close(db);
+    free(path);
 
     return true;
 }
@@ -446,6 +449,7 @@ bool db_find(const char *search, int show_password)
     {
         fprintf(stderr, "Error: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
+        free(path);
 
         return false;
     }
@@ -464,12 +468,14 @@ bool db_find(const char *search, int show_password)
         sqlite3_free(err);
         sqlite3_free(query);
         sqlite3_close(db);
+        free(path);
 
         return false;
     }
 
     sqlite3_free(query);
     sqlite3_close(db);
+    free(path);
 
     return true;
 }

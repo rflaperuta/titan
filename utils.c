@@ -109,8 +109,13 @@ char *read_lock()
             free(lockpath);
 
         fclose(fp);
+        free(path);
+
         return NULL;
     }
+
+    fclose(fp);
+    free(path);
 
     return lockpath;
 }

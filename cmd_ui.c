@@ -97,7 +97,7 @@ bool add_new_entry()
 {
     if(!has_lock())
     {
-        fprintf(stderr, "No decrypted database found\n");
+        fprintf(stderr, "No decrypted database found.\n");
         return false;
     }
 
@@ -113,7 +113,7 @@ bool add_new_entry()
     fgets(title, 1024, stdin);
     fprintf(stdout, "Username: ");
     fgets(user, 1024, stdin);
-    fprintf(stdout, "Address: ");
+    fprintf(stdout, "Url: ");
     fgets(url, 1024, stdin);
     fprintf(stdout, "Notes: ");
     fgets(notes, 1024, stdin);
@@ -146,7 +146,7 @@ bool edit_entry(int id)
 {
     if(!has_lock())
     {
-        fprintf(stderr, "No decrypted database found\n");
+        fprintf(stderr, "No decrypted database found.\n");
         return false;
     }
 
@@ -157,7 +157,7 @@ bool edit_entry(int id)
 
     if(entry->id == -1)
     {
-        printf("Nothing found\n");
+        printf("Nothing found.\n");
         free(entry);
         return false;
     }
@@ -212,7 +212,7 @@ bool remove_entry(int id)
 {
     if(!has_lock())
     {
-        fprintf(stderr, "No decrypted database found\n");
+        fprintf(stderr, "No decrypted database found.\n");
         return false;
     }
 
@@ -235,7 +235,7 @@ void list_by_id(int id, int show_password)
 {
     if(!has_lock())
     {
-        fprintf(stderr, "No decrypted database found\n");
+        fprintf(stderr, "No decrypted database found.\n");
         return;
     }
 
@@ -247,7 +247,7 @@ void list_by_id(int id, int show_password)
 
     if(entry->id == -1)
     {
-        printf("Nothing found with id %d\n", id);
+        printf("Nothing found with id %d.\n", id);
         free(entry);
         return;
     }
@@ -276,18 +276,22 @@ void list_all(int show_password)
 {
     if(!has_lock())
     {
-        fprintf(stderr, "No decrypted database found\n");
+        fprintf(stderr, "No decrypted database found.\n");
         return;
     }
 
     db_list_all(show_password);
 }
 
+/* Uses sqlite "like" query and prints results to stdout.
+ * This is ok for the command line version of Titan. However
+ * better design is needed _if_ GUI version will be developed.
+ */
 void find(const char *search, int show_password)
 {
     if(!has_lock())
     {
-        fprintf(stderr, "No decrypted database found\n");
+        fprintf(stderr, "No decrypted database found.\n");
         return;
     }
 
