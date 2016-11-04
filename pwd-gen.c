@@ -54,7 +54,7 @@ static unsigned int rand_between(unsigned int min, unsigned int max)
 
 /* Simply generate secure password
  * and output it to the stdout, use clock_gettime for
- * the seed to srand
+ * seeding srand
  */
 void generate_password(int length)
 {
