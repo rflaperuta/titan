@@ -92,6 +92,20 @@ my_getpass(char *prompt, char **lineptr, size_t *n, FILE *stream)
     return nread;
 }
 
+void init_database(const char *path)
+{
+    if(!has_lock())
+    {
+        if(db_init_new(path))
+            write_lock(path);
+    }
+    else
+    {
+        fprintf(stderr, "Existing database is decrypted. "
+                "Encrypt it before creating a new one.\n");
+    }
+}
+
 /* Interactively adds a new entry to the database */
 bool add_new_entry()
 {

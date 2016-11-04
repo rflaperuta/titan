@@ -21,6 +21,7 @@
 #ifndef __CMD_UI_H
 #define __CMD_UI_H
 
+void init_database(const char *path);
 bool add_new_entry();
 bool edit_entry(int id);
 bool remove_entry(int id);

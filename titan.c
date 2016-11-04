@@ -109,16 +109,7 @@ int main(int argc, char *argv[])
             /* Handle flags here automatically */
             break;
         case 'i':
-            if(!has_lock())
-            {
-                if(db_init_new(optarg))
-                    write_lock(optarg);
-            }
-            else
-            {
-                fprintf(stderr,
-                        "Existing database is decrypted. Encrypt it before creating a new one.\n");
-            }
+            init_database(optarg);
             break;
         case 'd': //decrypt
             break;
