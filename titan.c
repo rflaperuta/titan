@@ -29,10 +29,46 @@
 
 static int show_password = 0;
 
+static void version()
+{
+    printf("Titan version 0.9\n");
+}
+
 static void usage()
 {
-    printf("Usage: foo\n");
-
+#define HELP "\
+SYNOPSIS\n\
+\n\
+    titan [flags] [options]\n\
+\n\
+OPTIONS\n\
+\n\
+    -i --init         <path>         Initialize new database\n\
+    -e --encrypt                     Encrypt current database\n\
+    -d --decrypt      <path>         Decrypt database\n\
+    -a --add                         Add new entry\n\
+    -r --remove       <id>           Remove entry pointed by id\n\
+    -f --find         <search>       Search entries\n\
+    -c --edit         <id>           Edit entry pointed by id\n\
+    -l --list-entry   <id>           List entry pointed by id\n\
+    -A --list-all                    List all entries\n\
+    -h --help                        Show short help and exit. This page\n\
+    -g --gen-password <length>       Generate password\n\
+    -V --version                     Show version number of program\n\
+\n\
+FLAGS\n\
+\n\
+    --show-password                  Show passwords in listings\n\
+\n\
+For more information and examples see man titan(1).\n\
+\n\
+AUTHORS\n\
+    Copyright (C) 2016 Niko Rosvall <niko@byteptr.com>\n\
+\n\
+    Released under license GPL-3+. For more information, see\n\
+    http://www.gnu.org/licenses\n\
+"
+    printf(HELP);
 }
 
 int main(int argc, char *argv[])
@@ -52,14 +88,16 @@ int main(int argc, char *argv[])
             {"edit",                  required_argument, 0, 'c'},
             {"list-entry",            required_argument, 0, 'l'},
             {"list-all",              no_argument,       0, 'A'},
-            {"generate-password",     required_argument, 0, 'g'},
+            {"help",                  no_argument,       0, 'h'},
+            {"version",               no_argument,       0, 'V'},
+            {"gen-password",          required_argument, 0, 'g'},
             {"show-password",         no_argument,       &show_password, 1},
             {0, 0, 0, 0}
         };
 
         int option_index = 0;
 
-        c = getopt_long(argc, argv, "i:d:ear:f:c:l:Ag:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:d:ear:f:c:l:AhVg:", long_options, &option_index);
 
         if(c == -1)
             break;
@@ -88,6 +126,9 @@ int main(int argc, char *argv[])
         case 'a':
             add_new_entry();
             break;
+        case 'h':
+            usage();
+            break;
         case 'r':
             remove_entry(atoi(optarg));
             break;
@@ -102,6 +143,9 @@ int main(int argc, char *argv[])
             break;
         case 'A':
             list_all(show_password);
+            break;
+        case 'V':
+            version();
             break;
         case 'g':
             break;
