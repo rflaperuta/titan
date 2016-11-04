@@ -26,6 +26,7 @@
 #include "entry.h"
 #include "db.h"
 #include "utils.h"
+#include "pwd-gen.h"
 
 static int show_password = 0;
 
@@ -148,6 +149,7 @@ int main(int argc, char *argv[])
             version();
             break;
         case 'g':
+            generate_password(atoi(optarg));
             break;
         case '?':
             break;
