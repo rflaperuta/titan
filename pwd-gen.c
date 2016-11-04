@@ -57,7 +57,7 @@ static unsigned int rand_between(unsigned int min, unsigned int max)
  */
 void generate_password(int length)
 {
-    if(length < 0 || length > RAND_MAX)
+    if(length < 1 || length > RAND_MAX)
 	return;
 
     char *pass = NULL;
