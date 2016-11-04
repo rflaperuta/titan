@@ -90,7 +90,7 @@ bool db_init_new(const char *path)
     char *query = "create table entries"
         "(id integer primary key, title text, user text, url text,"
         "password text, notes text,"
-        "sqltime timestamp default current_timestamp not null);";
+        "timestamp date default (datetime('now','localtime')));";
 
     rc = sqlite3_exec(db, query, 0, 0, &err);
 
@@ -202,7 +202,7 @@ bool db_update_entry(int id, Entry_t *new_entry)
                                   "user='%q',"
                                   "url='%q',"
                                   "password='%q',"
-                                  "notes='%q' where id=%d;",
+                                  "notes='%q',timestamp=datetime('now','localtime') where id=%d;",
                                   new_entry->title,
                                   new_entry->user,
                                   new_entry->url,
