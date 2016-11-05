@@ -288,6 +288,7 @@ void list_by_id(int id, int show_password)
     fprintf(stdout, "User:  %s\n", entry->user);
     fprintf(stdout, "Url:   %s\n", entry->url);
     fprintf(stdout, "Notes: %s\n", entry->notes);
+    fprintf(stdout, "Timestamp: %s\n", entry->stamp);
 
     if(show_password == 1)
         fprintf(stdout, "Password: %s\n", entry->password);

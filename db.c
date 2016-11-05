@@ -277,7 +277,8 @@ db_get_entry_by_id(int id)
         return NULL;
     }
 
-    query = sqlite3_mprintf("select id,title,user,url,password,notes from entries where id=%d;", id);
+    query = sqlite3_mprintf("select id,title,user,url,password,notes,"
+                            "timestamp from entries where id=%d;", id);
 
     /* Set id to minus one by default. If query finds data
      * we set the id back to the original one in the callback.
@@ -559,6 +560,8 @@ cb_get_by_id(void *entry, int argc, char **argv, char **column_name)
 	return 1;
     if(argv[5] == NULL)
         return 1;
+    if(argv[6] == NULL)
+        return 1;
 
     ((Entry_t *)entry)->id = atoi(argv[0]);
     ((Entry_t *)entry)->title = strdup(argv[1]);
@@ -566,6 +569,7 @@ cb_get_by_id(void *entry, int argc, char **argv, char **column_name)
     ((Entry_t *)entry)->url = strdup(argv[3]);
     ((Entry_t *)entry)->password = strdup(argv[4]);
     ((Entry_t *)entry)->notes = strdup(argv[5]);
+    ((Entry_t *)entry)->stamp = strdup(argv[6]);
 
     return 0;
 }

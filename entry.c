@@ -45,6 +45,7 @@ Entry_t *entry_new(const char *title, const char *user,
     new->url = strdup(url);
     new->password = strdup(password);
     new->notes = strdup(notes);
+    new->stamp = NULL;
 
     return new;
 }
@@ -59,6 +60,9 @@ void entry_free(Entry_t *entry)
     free(entry->url);
     free(entry->password);
     free(entry->notes);
+
+    if(entry->stamp)
+        free(entry->stamp);
 
     free(entry);
 }

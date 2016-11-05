@@ -29,6 +29,8 @@ typedef struct _entry
     char *url;
     char *password;
     char *notes;
+    /* Currently stamp is only used by db_get_entry_by_id */
+    char *stamp;
 
 } Entry_t;
 
