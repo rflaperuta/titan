@@ -326,5 +326,4 @@ void find(const char *search, int show_password)
     }
 
     db_find(search, show_password);
-
 }
