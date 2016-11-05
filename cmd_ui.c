@@ -92,9 +92,9 @@ my_getpass(char *prompt, char **lineptr, size_t *n, FILE *stream)
     return nread;
 }
 
-void init_database(const char *path)
+void init_database(const char *path, int force)
 {
-    if(!has_lock())
+    if(!has_lock() || force == 1)
     {
         if(db_init_new(path))
             write_lock(path);

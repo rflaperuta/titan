@@ -29,6 +29,7 @@
 #include "pwd-gen.h"
 
 static int show_password = 0;
+static int force = 0;
 
 static void version()
 {
@@ -60,6 +61,8 @@ OPTIONS\n\
 FLAGS\n\
 \n\
     --show-password                  Show passwords in listings\n\
+    --force                          Ignore everything and force operation\n\
+                                     --force only works with --init option\n\
 \n\
 For more information and examples see man titan(1).\n\
 \n\
@@ -93,6 +96,7 @@ int main(int argc, char *argv[])
             {"version",               no_argument,       0, 'V'},
             {"gen-password",          required_argument, 0, 'g'},
             {"show-password",         no_argument,       &show_password, 1},
+            {"force",                 no_argument,       &force, 1},
             {0, 0, 0, 0}
         };
 
@@ -109,7 +113,7 @@ int main(int argc, char *argv[])
             /* Handle flags here automatically */
             break;
         case 'i':
-            init_database(optarg);
+            init_database(optarg, force);
             break;
         case 'd': //decrypt
             break;
