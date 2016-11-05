@@ -34,8 +34,7 @@
 extern int fileno(FILE *stream);
 
 /*Removes new line character from a string.*/
-static void
-strip_newline_str(char *str)
+static void strip_newline_str(char *str)
 {
 
     char *i = str;
@@ -56,8 +55,7 @@ strip_newline_str(char *str)
  *Usually stream is stdin. Returns length of the passphrase,
  *passphrase is stored to lineptr. Lineptr must be allocated beforehand.
  */
-static size_t
-my_getpass(char *prompt, char **lineptr, size_t *n, FILE *stream)
+static size_t my_getpass(char *prompt, char **lineptr, size_t *n, FILE *stream)
 {
     struct termios old, new;
     int nread;
@@ -328,4 +326,5 @@ void find(const char *search, int show_password)
     }
 
     db_find(search, show_password);
+
 }
