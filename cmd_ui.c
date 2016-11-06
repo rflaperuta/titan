@@ -327,3 +327,31 @@ void find(const char *search, int show_password)
 
     db_find(search, show_password);
 }
+
+void show_current_db_path()
+{
+    char *path = NULL;
+
+    path = read_lock();
+
+    if(!path)
+    {
+        fprintf(stderr, "No decrypted database exist.\n");
+    }
+    else
+    {
+        fprintf(stdout, "%s\n", path);
+        free(path);
+    }
+}
+
+void set_use_db(const char *path)
+{
+    if(has_lock())
+    {
+        fprintf(stderr, "Current database is decrypted, encrypt it first.\n");
+        return;
+    }
+
+    write_lock(path);
+}

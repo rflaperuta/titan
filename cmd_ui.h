@@ -28,5 +28,7 @@ bool remove_entry(int id);
 void list_by_id(int id, int show_password);
 void list_all(int show_password);
 void find(const char *search, int show_password);
+void show_current_db_path();
+void set_use_db(const char *path);
 
 #endif

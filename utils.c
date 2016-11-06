@@ -49,6 +49,7 @@ bool has_lock()
     }
 
     //TODO: Check if the database is decrypted too
+    //If not it's safe to return false so we can override it
 
     free(path);
 

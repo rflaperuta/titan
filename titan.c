@@ -49,6 +49,8 @@ OPTIONS\n\
     -e --encrypt                     Encrypt current database\n\
     -d --decrypt      <path>         Decrypt database\n\
     -a --add                         Add new entry\n\
+    -s --show-db-path                Show current database path\n\
+    -u --use-db                      Switch using another database\n\
     -r --remove       <id>           Remove entry pointed by id\n\
     -f --find         <search>       Search entries\n\
     -c --edit         <id>           Edit entry pointed by id\n\
@@ -91,9 +93,11 @@ int main(int argc, char *argv[])
             {"find",                  required_argument, 0, 'f'},
             {"edit",                  required_argument, 0, 'c'},
             {"list-entry",            required_argument, 0, 'l'},
+            {"use-db",                required_argument, 0, 'u'},
             {"list-all",              no_argument,       0, 'A'},
             {"help",                  no_argument,       0, 'h'},
             {"version",               no_argument,       0, 'V'},
+            {"show-db-path",          no_argument,       0, 's'},
             {"gen-password",          required_argument, 0, 'g'},
             {"show-password",         no_argument,       &show_password, 1},
             {"force",                 no_argument,       &force, 1},
@@ -102,7 +106,7 @@ int main(int argc, char *argv[])
 
         int option_index = 0;
 
-        c = getopt_long(argc, argv, "i:d:ear:f:c:l:AhVg:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:d:ear:f:c:l:Asu:hVg:", long_options, &option_index);
 
         if(c == -1)
             break;
@@ -122,12 +126,17 @@ int main(int argc, char *argv[])
         case 'a':
             add_new_entry();
             break;
+        case 's':
+            show_current_db_path();
+            break;
         case 'h':
             usage();
             break;
         case 'r':
             remove_entry(atoi(optarg));
             break;
+        case 'u':
+            set_use_db(optarg);
         case 'f':
             find(optarg, show_password);
             break;
