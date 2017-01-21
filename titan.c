@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Niko Rosvall <niko@byteptr.com>
+ * Copyright (C) 2017 Niko Rosvall <niko@byteptr.com>
  *
  * This file is part of Titan.
  *
@@ -69,7 +69,7 @@ FLAGS\n\
 For more information and examples see man titan(1).\n\
 \n\
 AUTHORS\n\
-    Copyright (C) 2016 Niko Rosvall <niko@byteptr.com>\n\
+    Copyright (C) 2017 Niko Rosvall <niko@byteptr.com>\n\
 \n\
     Released under license GPL-3+. For more information, see\n\
     http://www.gnu.org/licenses\n\

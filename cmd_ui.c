@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Niko Rosvall <niko@byteptr.com>
+ * Copyright (C) 2017 Niko Rosvall <niko@byteptr.com>
  *
  * This file is part of Titan.
  *
@@ -205,27 +205,27 @@ bool edit_entry(int id)
 
     if(title[0] != '\0')
     {
-	entry->title = strdup(title);
+        entry->title = strdup(title);
         update = true;
     }
     if(user[0] != '\0')
     {
-	entry->user = strdup(user);
+        entry->user = strdup(user);
         update = true;
     }
     if(url[0] != '\0')
     {
-	entry->url = strdup(url);
+        entry->url = strdup(url);
         update = true;
     }
     if(notes[0] != '\0')
     {
-	entry->notes = strdup(notes);
+        entry->notes = strdup(notes);
         update = true;
     }
     if(pass[0] != '\0')
     {
-	entry->password = strdup(pass);
+        entry->password = strdup(pass);
         update = true;
     }
 

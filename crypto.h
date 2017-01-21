@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Niko Rosvall <niko@byteptr.com>
+ * Copyright (C) 2017 Niko Rosvall <niko@byteptr.com>
  *
  * This file is part of Titan.
  *
@@ -20,6 +20,8 @@
 
 #ifndef __CRYPTO_H
 #define __CRYPTO_H
+
+/* TODO: use uint8_t from stdint.h */
 
 bool encrypt(unsigned char *plain, int plain_len, unsigned char *add,
              int add_len, unsigned char *key, unsigned char *iv,

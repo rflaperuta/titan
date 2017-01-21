@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Niko Rosvall <niko@byteptr.com>
+ * Copyright (C) 2017 Niko Rosvall <niko@byteptr.com>
  *
  * This file is part of Titan.
  *
@@ -46,7 +46,7 @@ static unsigned int rand_between(unsigned int min, unsigned int max)
      */
     do
     {
-	r = rand();
+        r = rand();
     } while (r >= limit);
 
     return min + (r / buckets);
@@ -59,12 +59,12 @@ static unsigned int rand_between(unsigned int min, unsigned int max)
 void generate_password(int length)
 {
     if(length < 1 || length > RAND_MAX)
-	return;
+        return;
 
     char *pass = NULL;
     char *alpha = "abcdefghijklmnopqrstuvwxyz" \
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
-	"0123456789?)(/%#!?)=";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+    "0123456789?)(/%#!?)=";
     unsigned int max;
     unsigned int number;
     struct timespec tspec;
@@ -87,12 +87,12 @@ void generate_password(int length)
     pass = calloc(1, (length + 1) * sizeof(char));
 
     if(pass == NULL)
-	return;
+        return;
 
     for(int j = 0; j < length; j++)
     {
-	number = rand_between(0, max);
-	pass[j] = alpha[number];
+        number = rand_between(0, max);
+        pass[j] = alpha[number];
     }
 
     fprintf(stdout, "%s\n", pass);

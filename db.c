@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Niko Rosvall <niko@byteptr.com>
+ * Copyright (C) 2017 Niko Rosvall <niko@byteptr.com>
  *
  * This file is part of Titan.
  *
@@ -51,8 +51,8 @@ db_check_integrity(const char *path)
 
     if(retval)
     {
-	fprintf(stderr, "Can't initialize: %s\n", sqlite3_errmsg(db));
-	return false;
+        fprintf(stderr, "Can't initialize: %s\n", sqlite3_errmsg(db));
+        return false;
     }
 
     sql = "pragma integrity_check;";
@@ -61,10 +61,10 @@ db_check_integrity(const char *path)
 
     if(retval != SQLITE_OK)
     {
-	fprintf(stderr, "SQL error: %s\n", err);
-	sqlite3_free(err);
-	sqlite3_close(db);
-	return false;
+        fprintf(stderr, "SQL error: %s\n", err);
+        sqlite3_free(err);
+        sqlite3_close(db);
+        return false;
     }
 
     sqlite3_close(db);
@@ -262,10 +262,10 @@ db_get_entry_by_id(int id)
 
     if(rc != SQLITE_OK)
     {
-	fprintf(stderr, "Error %s\n", sqlite3_errmsg(db));
-	free(path);
+        fprintf(stderr, "Error %s\n", sqlite3_errmsg(db));
+        free(path);
 
-	return NULL;
+        return NULL;
     }
 
     entry = malloc(sizeof(struct _entry));
@@ -290,12 +290,12 @@ db_get_entry_by_id(int id)
 
     if(rc != SQLITE_OK)
     {
-	fprintf(stderr, "Error: %s\n", err);
-	sqlite3_free(err);
-	sqlite3_free(query);
-	free(path);
+        fprintf(stderr, "Error: %s\n", err);
+        sqlite3_free(err);
+        sqlite3_free(query);
+        free(path);
 
-	return NULL;
+        return NULL;
     }
 
     sqlite3_free(query);
@@ -338,9 +338,9 @@ bool db_delete_entry(int id, bool *changes)
 
     if(rc != SQLITE_OK)
     {
-	fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-	free(path);
-	return false;
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        free(path);
+        return false;
     }
 
     query = sqlite3_mprintf("delete from entries where id=%d;", id);
@@ -348,19 +348,19 @@ bool db_delete_entry(int id, bool *changes)
 
     if(rc != SQLITE_OK)
     {
-	fprintf(stderr, "Error: %s\n", err);
-	sqlite3_free(err);
-	sqlite3_free(query);
+        fprintf(stderr, "Error: %s\n", err);
+        sqlite3_free(err);
+        sqlite3_free(query);
         sqlite3_close(db);
-	free(path);
+        free(path);
 
-	return false;
+        return false;
     }
 
     count = sqlite3_changes(db);
 
     if(count > 0)
-	*changes = true;
+        *changes = true;
 
     sqlite3_free(query);
     sqlite3_close(db);
@@ -485,13 +485,13 @@ static int cb_check_integrity(void *notused, int argc, char **argv, char **colum
 {
     for(int i = 0; i < argc; i++)
     {
-	if(strcmp(column_name[i], "integrity_check") == 0)
-	{
-	    char *result = argv[i];
+        if(strcmp(column_name[i], "integrity_check") == 0)
+        {
+            char *result = argv[i];
 
-	    if(strcmp(result, "ok") != 0)
-		return 1;
-	}
+            if(strcmp(result, "ok") != 0)
+                return 1;
+        }
     }
 
     return 0;
@@ -549,15 +549,15 @@ cb_get_by_id(void *entry, int argc, char **argv, char **column_name)
 {
     /*Let's not allow NULLs*/
     if(argv[0] == NULL)
-	return 1;
+        return 1;
     if(argv[1] == NULL)
-	return 1;
+        return 1;
     if(argv[2] == NULL)
-	return 1;
+        return 1;
     if(argv[3] == NULL)
-	return 1;
+        return 1;
     if(argv[4] == NULL)
-	return 1;
+        return 1;
     if(argv[5] == NULL)
         return 1;
     if(argv[6] == NULL)
