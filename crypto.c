@@ -64,13 +64,19 @@ static char *generate_random_data(int size)
 
 static Key_t generate_key(const char *passphrase, bool *ok)
 {
-    char *salt;
+    char *salt = NULL;
     int iterations = 25000;
     Key_t key;
     int success;
     char *resultbytes[KEY_SIZE];
 
     salt = generate_random_data(SALT_SIZE);
+
+    if(!salt)
+    {
+        *ok = false;
+        return key;
+    }
 
     success = PKCS5_PBKDF2_HMAC(passphrase, strlen(passphrase), (unsigned char*)salt,
                                 strlen(salt), iterations, EVP_sha256(),
@@ -112,6 +118,7 @@ bool encrypt_file(const char *passphrase, const char *path)
 {
 
     bool ok;
+    char *iv = NULL;
     Key_t key = generate_key(passphrase, &ok);
 
     if(!ok)
@@ -119,6 +126,19 @@ bool encrypt_file(const char *passphrase, const char *path)
         fprintf(stderr, "Key derivation failed.\n");
         return false;
     }
+
+    iv = generate_random_data(IV_SIZE);
+
+    if(!iv)
+    {
+        fprintf(stderr, "Initialization vector generation failed.\n");
+        return false;
+    }
+
+    //read data from path
+    //encrypt data
+    //write magic header,iv, salt and additional data and the tag, to the beginning of the file
+    //write ciphered data to the file
 
     return true;
 }
