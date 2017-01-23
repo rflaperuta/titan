@@ -27,6 +27,7 @@
 #include "db.h"
 #include "utils.h"
 #include "pwd-gen.h"
+#include "crypto.h"
 
 static int show_password = 0;
 static int force = 0;
@@ -81,6 +82,12 @@ int main(int argc, char *argv[])
 {
     int c;
 
+    if(argc == 1)
+    {
+        usage();
+        return 0;
+    }
+
     while(true)
     {
         static struct option long_options[] =
@@ -122,6 +129,7 @@ int main(int argc, char *argv[])
         case 'd': //decrypt
             break;
         case 'e': //encrypt
+            encrypt_file("1q2w3e", NULL);
             break;
         case 'a':
             add_new_entry();
@@ -156,10 +164,8 @@ int main(int argc, char *argv[])
             generate_password(atoi(optarg));
             break;
         case '?':
-            break;
-        default:
             usage();
-            return 0;
+            break;
         }
     }
 

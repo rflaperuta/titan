@@ -21,10 +21,19 @@
 #ifndef __CRYPTO_H
 #define __CRYPTO_H
 
-/* TODO: use uint8_t from stdint.h */
+#define KEY_SIZE (32)  //256 bits
+#define IV_SIZE (16)   //128 bits
+#define TAG_SIZE (16) //128 bits
+#define SALT_SIZE (64) //512 bits
 
-bool encrypt(unsigned char *plain, int plain_len, unsigned char *add,
-             int add_len, unsigned char *key, unsigned char *iv,
-             unsigned char *cipher /*out*/, unsigned char *tag /*out*/);
+typedef struct Key
+{
+    char data[32];
+    char salt[64];
+
+} Key_t;
+
+bool encrypt_file(const char *passphrase, const char *path);
+bool decrypt_file(const char *passphrase, const char *path);
 
 #endif
