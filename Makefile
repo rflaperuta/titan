@@ -1,5 +1,5 @@
 CC=gcc
-override CFLAGS+=-std=c99 -Wall
+override CFLAGS+=-std=c99 -Wall -g
 PREFIX=/usr/
 LIBS=-lcrypto -lsqlite3
 PROG=titan
