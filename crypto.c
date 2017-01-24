@@ -162,23 +162,38 @@ static bool encrypt_decrypt(unsigned char *data_in, int data_in_len, FILE *out, 
                     unsigned char *iv, int is_encrypt)
 {
     EVP_CIPHER_CTX ctx;
-    unsigned char *out_buffer;
+    unsigned char *out_buffer = NULL;
     int output_len = 0;
     int output_len_final = 0;
 
     if(EVP_CipherInit(&ctx, EVP_aes_256_cbc(), key, iv, is_encrypt) != 1)
     {
-
+        fprintf(stderr, "Unable to initialize AES.\n");
+        return false;
     }
 
     out_buffer = malloc(data_in_len * 2);
 
-    if(EVP_CipherUpdate(&ctx, out_buffer, &output_len, data_in, data_in_len) != 1)
+    if(!out_buffer)
     {
-        printf("bar\n");
+        fprintf(stderr, "Unable to allocate output buffer.\n");
+        return false;
     }
 
-    EVP_CipherFinal(&ctx, out_buffer + output_len, &output_len_final);
+    if(EVP_CipherUpdate(&ctx, out_buffer, &output_len, data_in, data_in_len) != 1)
+    {
+        fprintf(stderr, "Unable to process data.\n");
+        free(out_buffer);
+        return false;
+    }
+
+    if(EVP_CipherFinal(&ctx, out_buffer + output_len, &output_len_final) != 1)
+    {
+        fprintf(stderr, "Invalid passphrase, abort.\n");
+        free(out_buffer);
+        return false;
+    }
+
     fwrite(out_buffer, sizeof(unsigned char), output_len + output_len_final, out);
 
     free(out_buffer);
