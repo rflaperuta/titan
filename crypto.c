@@ -201,6 +201,14 @@ static bool encrypt_decrypt(unsigned char *data_in, int data_in_len, FILE *out, 
     return true;
 }
 
+static unsigned char hmac_data(const void *key, int key_len,
+                               unsigned char *data, int data_len,
+                               unsigned char *result, int *res_len)
+{
+    //TODO: Implement
+    return NULL;
+}
+
 bool encrypt_file(const char *passphrase, const char *path)
 {
     bool ok;
