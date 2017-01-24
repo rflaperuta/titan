@@ -17,3 +17,9 @@ $(PROG): $(OBJS)
 clean:
 	rm -f *.o
 	rm -f $(PROG)
+
+install: all
+	cp titan $(PREFIX)/bin/
+
+uninstall:
+	rm $(PREFIX)/bin/titan
