@@ -22,9 +22,11 @@
 #define __CRYPTO_H
 
 #define KEY_SIZE (32)  //256 bits
-#define IV_SIZE (16)   //128 bits
-#define TAG_SIZE (16) //128 bits
+#define IV_SIZE (12)   //96 bits
 #define SALT_SIZE (64) //512 bits
+
+#define TITAN_MODE_DECRYPT (0)
+#define TITAN_MODE_ENCRYPT (1)
 
 typedef struct Key
 {

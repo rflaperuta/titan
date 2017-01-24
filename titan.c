@@ -127,9 +127,10 @@ int main(int argc, char *argv[])
             init_database(optarg, force);
             break;
         case 'd': //decrypt
+            decrypt_file("1q2w3e", optarg);
             break;
         case 'e': //encrypt
-            encrypt_file("1q2w3e", NULL);
+            encrypt_file("1q2w3e", "/home/niko/me1.png");
             break;
         case 'a':
             add_new_entry();
