@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "utils.h"
 #include "entry.h"
 
 /* Allocate and return a new entry containing data.
@@ -19,10 +20,7 @@ Entry_t *entry_new(const char *title, const char *user,
 
     Entry_t *new = NULL;
 
-    new = malloc(sizeof(struct _entry));
-
-    if(new == NULL)
-        return NULL;
+    new = tmalloc(sizeof(struct _entry));
 
     new->title = strdup(title);
     new->user = strdup(user);

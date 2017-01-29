@@ -15,6 +15,7 @@
 
 static int show_password = 0;
 static int force = 0;
+static int auto_encrypt = 0;
 
 static void version()
 {
@@ -43,11 +44,15 @@ OPTIONS\n\
     -A --list-all                    List all entries\n\
     -h --help                        Show short help and exit. This page\n\
     -g --gen-password <length>       Generate password\n\
+    -q --quick        <search>       This is the same as running\n\
+                                     --auto-encrypt --show-passwords -f\n\
+\n\
     -V --version                     Show version number of program\n\
 \n\
 FLAGS\n\
 \n\
-    --show-password                  Show passwords in listings\n\
+    --auto-encrypt                   Automatically encrypt after exit\n\
+    --show-passwords                 Show passwords in listings\n\
     --force                          Ignore everything and force operation\n\
                                      --force only works with --init option\n\
 \n\
@@ -87,14 +92,16 @@ int main(int argc, char *argv[])
             {"version",               no_argument,       0, 'V'},
             {"show-db-path",          no_argument,       0, 's'},
             {"gen-password",          required_argument, 0, 'g'},
-            {"show-password",         no_argument,       &show_password, 1},
+            {"quick",                 required_argument, 0, 'q'},
+            {"auto-encrypt",          no_argument,       &auto_encrypt,  1},
+            {"show-passwords",        no_argument,       &show_password, 1},
             {"force",                 no_argument,       &force, 1},
             {0, 0, 0, 0}
         };
 
         int option_index = 0;
 
-        c = getopt_long(argc, argv, "i:d:ear:f:c:l:Asu:hVg:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:d:ear:f:c:l:Asu:hVg:q:", long_options, &option_index);
 
         if(c == -1)
             break;
@@ -111,7 +118,7 @@ int main(int argc, char *argv[])
             decrypt_file("1q2w3e", optarg);
             break;
         case 'e': //encrypt
-            encrypt_file("1q2w3e", "/home/niko/me1.png");
+            encrypt_file("1q2w3e", "/home/niko/testi.txt");
             break;
         case 'a':
             add_new_entry();
@@ -144,6 +151,11 @@ int main(int argc, char *argv[])
             break;
         case 'g':
             generate_password(atoi(optarg));
+            break;
+        case 'q':
+            auto_encrypt = 1;
+            show_password = 1;
+            find(optarg, show_password); //TODO: every cmd_ui function also needs to take auto_encrypt parameter
             break;
         case '?':
             usage();

@@ -8,6 +8,7 @@
 #define KEY_SIZE (32)  //256 bits
 #define IV_SIZE (16)   //128 bits
 #define SALT_SIZE (64) //512 bits
+#define HMAC_SHA512_SIZE (64)
 
 #define TITAN_MODE_DECRYPT (0)
 #define TITAN_MODE_ENCRYPT (1)

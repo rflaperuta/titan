@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
+#include "utils.h"
 #ifdef __MACH__
 #include <mach/clock.h>
 #include <mach/mach.h>
@@ -68,10 +69,7 @@ void generate_password(int length)
 
     srand(tspec.tv_nsec);
     max = strlen(alpha) - 1;
-    pass = calloc(1, (length + 1) * sizeof(char));
-
-    if(pass == NULL)
-        return;
+    pass = tmalloc((length + 1) * sizeof(char));
 
     for(int j = 0; j < length; j++)
     {

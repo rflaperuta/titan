@@ -252,14 +252,7 @@ db_get_entry_by_id(int id)
         return NULL;
     }
 
-    entry = malloc(sizeof(struct _entry));
-
-    if(!entry)
-    {
-        fprintf(stderr, "Unable to allocate new entry\n");
-        free(path);
-        return NULL;
-    }
+    entry = tmalloc(sizeof(struct _entry));
 
     query = sqlite3_mprintf("select id,title,user,url,password,notes,"
                             "timestamp from entries where id=%d;", id);

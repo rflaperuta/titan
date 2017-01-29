@@ -9,7 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <openssl/evp.h>
+#include <openssl/hmac.h>
 #include "crypto.h"
+#include "utils.h"
 
 //Our magic number that's written into the
 //encrypted file. Used to determine if the file
@@ -25,13 +27,7 @@ static char *generate_random_data(int size)
     char *data = NULL;
     FILE *frnd = NULL;
 
-    data = calloc(1, size);
-
-    if(data == NULL)
-    {
-        fprintf(stderr, "Malloc failed\n");
-        return NULL;
-    }
+    data = tmalloc(size * sizeof(char));
 
     frnd = fopen("/dev/urandom", "r");
 
@@ -62,7 +58,11 @@ static Key_t generate_key(const char *passphrase, char *old_salt,
     if(old_salt == NULL)
         salt = generate_random_data(SALT_SIZE);
     else
-        salt = strdup(old_salt);
+    {
+        salt = tmalloc(SALT_SIZE);
+        memmove(salt, old_salt, SALT_SIZE);
+        //salt = strdup(old_salt);
+    }
 
     if(!salt)
     {
@@ -71,7 +71,7 @@ static Key_t generate_key(const char *passphrase, char *old_salt,
     }
 
     success = PKCS5_PBKDF2_HMAC(passphrase, strlen(passphrase), (unsigned char*)salt,
-                                strlen(salt), iterations, EVP_sha256(),
+                                SALT_SIZE, iterations, EVP_sha256(),
                                 KEY_SIZE, (unsigned char*)resultbytes);
 
     if(success == 0)
@@ -97,14 +97,9 @@ static char *get_output_filename(const char *orig, const char *ext)
 {
     char *path = NULL;
     size_t len;
-    len = strlen(orig) + strlen(ext) + 1;
-    path = malloc(len * sizeof(char));
 
-    if(!path)
-    {
-        fprintf(stderr, "Malloc failed\n");
-        return NULL;
-    }
+    len = strlen(orig) + strlen(ext) + 1;
+    path = tmalloc(len * sizeof(char));
 
     strcpy(path, orig);
     strcat(path, ext);
@@ -127,7 +122,7 @@ static bool is_file_encrypted(const char *path)
 
     fseek(fp, 0, SEEK_END);
     int len = ftell(fp);
-    int offset = sizeof(int) + IV_SIZE + SALT_SIZE;
+    int offset = sizeof(int) + IV_SIZE + SALT_SIZE + HMAC_SHA512_SIZE;
     rewind(fp);
 
     fseek(fp, len - offset, SEEK_CUR);
@@ -142,38 +137,37 @@ static bool is_file_encrypted(const char *path)
     return true;
 }
 
-static bool encrypt_decrypt(unsigned char *data_in, int data_in_len, FILE *out, unsigned char *key,
-                    unsigned char *iv, int is_encrypt)
+static bool encrypt_decrypt(unsigned char *data_in, int data_in_len,
+                            FILE *out, unsigned char *key,
+                            unsigned char *iv, int is_encrypt)
 {
-    EVP_CIPHER_CTX ctx;
+    EVP_CIPHER_CTX *ctx;
     unsigned char *out_buffer = NULL;
     int output_len = 0;
     int output_len_final = 0;
+    int cipher_block_size;
 
-    if(EVP_CipherInit(&ctx, EVP_aes_256_cbc(), key, iv, is_encrypt) != 1)
+    ctx = EVP_CIPHER_CTX_new();
+
+    if(EVP_CipherInit(ctx, EVP_aes_256_ctr(), key, iv, is_encrypt) != 1)
     {
         fprintf(stderr, "Unable to initialize AES.\n");
         return false;
     }
 
-    out_buffer = malloc(data_in_len * 2);
+    cipher_block_size = EVP_CIPHER_CTX_block_size(ctx);
+    out_buffer = tmalloc(data_in_len +(cipher_block_size));
 
-    if(!out_buffer)
-    {
-        fprintf(stderr, "Unable to allocate output buffer.\n");
-        return false;
-    }
-
-    if(EVP_CipherUpdate(&ctx, out_buffer, &output_len, data_in, data_in_len) != 1)
+    if(EVP_CipherUpdate(ctx, out_buffer, &output_len, data_in, data_in_len) != 1)
     {
         fprintf(stderr, "Unable to process data.\n");
         free(out_buffer);
         return false;
     }
 
-    if(EVP_CipherFinal(&ctx, out_buffer + output_len, &output_len_final) != 1)
+    if(EVP_CipherFinal(ctx, out_buffer + output_len, &output_len_final) != 1)
     {
-        fprintf(stderr, "Invalid passphrase, abort.\n");
+        fprintf(stderr, "Unable to finalize.\n");
         free(out_buffer);
         return false;
     }
@@ -182,15 +176,86 @@ static bool encrypt_decrypt(unsigned char *data_in, int data_in_len, FILE *out, 
 
     free(out_buffer);
 
+    EVP_CIPHER_CTX_free(ctx);
+
     return true;
 }
 
-static unsigned char hmac_data(const void *key, int key_len,
+static unsigned char *hmac_data(const void *key, int key_len,
                                unsigned char *data, int data_len,
                                unsigned char *result, int *res_len)
 {
-    //TODO: Implement
-    return NULL;
+    return HMAC(EVP_sha512(), key, key_len, data, data_len, result,
+                (unsigned int *)res_len);
+}
+
+//Calculates hmac from the content of fp and writes the hash
+//into end of the file. Caller must close fp.
+static bool calculate_and_write_hmac(FILE *fp, const void *key)
+{
+    unsigned char *hmac_sha512 = NULL;
+    char *cipher_buffer = NULL;
+    int len = 0;
+    int cipherlen;
+
+    fseek(fp, 0, SEEK_END);
+    cipherlen = ftell(fp);
+    //Cursor back to beginning so we can read the data for hmac
+    fseek(fp, 0, SEEK_SET);
+
+    cipher_buffer = tmalloc(cipherlen * sizeof(char));
+    fread(cipher_buffer, sizeof(char), cipherlen, fp);
+
+    hmac_sha512 = tmalloc(HMAC_SHA512_SIZE);
+
+    hmac_data(key, KEY_SIZE, (unsigned char *)cipher_buffer,cipherlen,
+              (unsigned char *)hmac_sha512, &len);
+
+    fwrite(hmac_sha512, 1, HMAC_SHA512_SIZE, fp);
+
+    free(cipher_buffer);
+    free(hmac_sha512);
+
+    return true;
+}
+
+//Function assumes that fp cursor is in the right place
+//to read the stored hmac from the file.
+static bool read_and_verify_hmac(const char *path, char *hmac, const void *key)
+{
+    char *new_hmac = tmalloc(HMAC_SHA512_SIZE);
+    char *buffer;
+    int len;
+    int offset;
+    int result;
+    FILE *fp = NULL;
+    bool retval = false;
+
+    fp = fopen(path, "r");
+
+    fseek(fp, 0, SEEK_END);
+    len = ftell(fp);
+
+    //calculate the actual hmacced data size
+    offset = len - HMAC_SHA512_SIZE;
+    fseek(fp, 0, SEEK_SET);
+
+    buffer = tmalloc(offset * sizeof(char));
+
+    //read whole file until hmac
+    fread(buffer, sizeof(char), offset, fp);
+
+    hmac_data(key, KEY_SIZE, (unsigned char*)buffer, offset,
+             (unsigned char*)new_hmac, &result);
+
+    if(CRYPTO_memcmp(hmac, new_hmac, HMAC_SHA512_SIZE) == 0)
+        retval = true;
+
+    free(new_hmac);
+    free(buffer);
+    fclose(fp);
+
+    return retval;
 }
 
 bool encrypt_file(const char *passphrase, const char *path)
@@ -198,7 +263,7 @@ bool encrypt_file(const char *passphrase, const char *path)
     bool ok;
     char *iv = NULL;
     FILE *plain = NULL;
-    FILE *cipher = NULL;
+    FILE *cipher_fp = NULL;
     char *output_filename = NULL;
     char *plain_data = NULL;
 
@@ -237,15 +302,7 @@ bool encrypt_file(const char *passphrase, const char *path)
     int plain_len = ftell(plain);
     fseek(plain, 0, SEEK_SET);
 
-    plain_data = malloc(plain_len * sizeof(char));
-
-    if(!plain_data)
-    {
-        fprintf(stderr, "Unable to allocate memory.\n");
-        fclose(plain);
-        free(iv);
-        return false;
-    }
+    plain_data = tmalloc(plain_len * sizeof(char));
 
     fread(plain_data, sizeof(char), plain_len, plain);
     fclose(plain);
@@ -260,9 +317,9 @@ bool encrypt_file(const char *passphrase, const char *path)
         return false;
     }
 
-    cipher = fopen(output_filename, "w");
+    cipher_fp = fopen(output_filename, "w");
 
-    if(!cipher)
+    if(!cipher_fp)
     {
         fprintf(stderr, "Unable to open %s for writing.\n", output_filename);
         free(iv);
@@ -271,27 +328,43 @@ bool encrypt_file(const char *passphrase, const char *path)
         return false;
     }
 
-    encrypt_decrypt((unsigned char*)plain_data, plain_len, cipher, (unsigned char *)key.data, (unsigned char *)iv,
+    //perform the actual encryption
+    encrypt_decrypt((unsigned char*)plain_data, plain_len, cipher_fp,
+                    (unsigned char *)key.data, (unsigned char *)iv,
                     TITAN_MODE_ENCRYPT);
 
     //write iv etc. into the end of the file
-    fwrite((void*)&MAGIC_HEADER, sizeof(MAGIC_HEADER), 1, cipher);
-    fwrite(iv, 1, IV_SIZE, cipher);
-    fwrite(key.salt, 1, SALT_SIZE, cipher);
+    fwrite((void*)&MAGIC_HEADER, sizeof(MAGIC_HEADER), 1, cipher_fp);
+    fwrite(iv, 1, IV_SIZE, cipher_fp);
+    fwrite(key.salt, 1, SALT_SIZE, cipher_fp);
 
-    fclose(cipher);
-    free(iv);
-    free(plain_data);
+    //Close the file pointer, to sync the data, before reading it again
+    //for the hmac calculation
+    fclose(cipher_fp);
+
+    //Open the file again for reading and writing
+    cipher_fp = fopen(output_filename, "r+");
+
+    if(!calculate_and_write_hmac(cipher_fp, key.data))
+    {
+        free(iv);
+        free(output_filename);
+        free(plain_data);
+        fclose(cipher_fp);
+
+        return false;
+    }
 
     //Finally remove the plain file
     if(remove(path) != 0)
-    {
         fprintf(stderr, "WARNING: Error deleting plain file %s.", path);
-    }
 
     //And rename our ciphered file back to the original name
     rename(output_filename, path);
     free(output_filename);
+    free(plain_data);
+    free(iv);
+    fclose(cipher_fp);
 
     return true;
 }
@@ -305,6 +378,7 @@ bool decrypt_file(const char *passphrase, const char *path)
     FILE *cipher = NULL;
     char *output_filename = NULL;
     char *cipher_data = NULL;
+    char *hmac;
 
     if(!is_file_encrypted(path))
     {
@@ -312,22 +386,8 @@ bool decrypt_file(const char *passphrase, const char *path)
         return false;
     }
 
-    iv = malloc(IV_SIZE);
-
-    if(!iv)
-    {
-        fprintf(stderr, "Malloc failed.\n");
-        return false;
-    }
-
-    salt = malloc(SALT_SIZE);
-
-    if(!salt)
-    {
-        fprintf(stderr, "Unable to allocate salt memory.\n");
-        free(iv);
-        return false;
-    }
+    iv = tmalloc(IV_SIZE);
+    salt = tmalloc(SALT_SIZE);
 
     cipher = fopen(path, "r");
 
@@ -341,9 +401,11 @@ bool decrypt_file(const char *passphrase, const char *path)
 
     fseek(cipher, 0, SEEK_END);
     int len = ftell(cipher);
-    int offset = len - (sizeof(int) + IV_SIZE + SALT_SIZE);
+    int offset = len - (sizeof(int) + IV_SIZE + SALT_SIZE + HMAC_SHA512_SIZE);
 
     rewind(cipher);
+
+    hmac = tmalloc(HMAC_SHA512_SIZE);
 
     fseek(cipher, offset, SEEK_CUR);
     //Skip the magic header
@@ -351,24 +413,7 @@ bool decrypt_file(const char *passphrase, const char *path)
     //iv, salt
     fread(iv, IV_SIZE, 1, cipher);
     fread(salt, SALT_SIZE, 1, cipher);
-
-    rewind(cipher);
-
-    //read all data, skip header, salt, iv
-    cipher_data = malloc(offset * sizeof(char));
-
-    if(!cipher_data)
-    {
-        fprintf(stderr, "Unable to allocate memory.\n");
-        free(iv);
-        free(salt);
-        fclose(cipher);
-
-        return false;
-    }
-
-    fread(cipher_data, sizeof(char), offset, cipher);
-    fclose(cipher);
+    fread(hmac, HMAC_SHA512_SIZE, 1, cipher);
 
     Key_t key = generate_key(passphrase, salt, &ok);
 
@@ -378,8 +423,32 @@ bool decrypt_file(const char *passphrase, const char *path)
         free(iv);
         free(salt);
         free(cipher_data);
+        free(hmac);
         return false;
     }
+
+    fclose(cipher);
+
+    if(!read_and_verify_hmac(path, hmac, key.data))
+    {
+        fprintf(stderr, "Invalid password or tampered data. Aborted.\n");
+        free(iv);
+        free(salt);
+        free(cipher_data);
+        fclose(cipher);
+        free(hmac);
+
+        fprintf(stderr, "Wrong passphrase or tampered data. Abort.\n");
+
+        return false;
+    }
+
+    cipher = fopen(path, "r");
+    cipher_data = tmalloc(offset * sizeof(char));
+
+    //read all data, skip header, salt, iv
+    fread(cipher_data, sizeof(char), offset, cipher);
+    fclose(cipher);
 
     output_filename = get_output_filename(path, ".plain");
 
@@ -389,6 +458,8 @@ bool decrypt_file(const char *passphrase, const char *path)
         free(iv);
         free(salt);
         free(cipher_data);
+        free(hmac);
+
         return false;
     }
 
@@ -401,11 +472,14 @@ bool decrypt_file(const char *passphrase, const char *path)
         free(salt);
         free(output_filename);
         free(cipher_data);
+        free(hmac);
+
         return false;
     }
 
-    encrypt_decrypt((unsigned char*)cipher_data, offset, plain, (unsigned char *)key.data,
-                    (unsigned char *)iv, TITAN_MODE_DECRYPT);
+    encrypt_decrypt((unsigned char*)cipher_data, offset, plain,
+                    (unsigned char *)key.data, (unsigned char *)iv,
+                    TITAN_MODE_DECRYPT);
 
     //Finally remove the cipher file
     if(remove(path) != 0)
@@ -421,6 +495,7 @@ bool decrypt_file(const char *passphrase, const char *path)
     free(salt);
     fclose(plain);
     free(cipher_data);
+    free(hmac);
 
     return true;
 }

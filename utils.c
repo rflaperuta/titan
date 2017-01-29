@@ -53,10 +53,7 @@ char *get_lockfile_path()
         return NULL;
 
     /* /home/user/.titan.lock */
-    path = malloc(sizeof(char) * (strlen(home) + 13));
-
-    if(!path)
-        return NULL;
+    path = tmalloc(sizeof(char) * (strlen(home) + 13));
 
     strcpy(path, home);
     strcat(path, "/.titan.lock");
@@ -127,4 +124,21 @@ void write_lock(const char *db_path)
     fclose(fp);
 
     free(path);
+}
+
+//Simple malloc wrapper to prevent enormous error
+//checking every where in the code
+void *tmalloc(size_t size)
+{
+    void *data = NULL;
+
+    data = malloc(size);
+
+    if(data == NULL)
+    {
+        fprintf(stderr, "Malloc failed. Abort.\n");
+        abort();
+    }
+
+    return data;
 }
