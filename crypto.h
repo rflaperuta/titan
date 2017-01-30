@@ -22,5 +22,6 @@ typedef struct Key
 
 bool encrypt_file(const char *passphrase, const char *path);
 bool decrypt_file(const char *passphrase, const char *path);
+bool is_file_encrypted(const char *path);
 
 #endif

@@ -107,36 +107,6 @@ static char *get_output_filename(const char *orig, const char *ext)
     return path;
 }
 
-static bool is_file_encrypted(const char *path)
-{
-    FILE *fp = NULL;
-    int data;
-
-    fp = fopen(path, "r");
-
-    if(!fp)
-    {
-        fprintf(stderr, "Failed to open file.\n");
-        return false;
-    }
-
-    fseek(fp, 0, SEEK_END);
-    int len = ftell(fp);
-    int offset = sizeof(int) + IV_SIZE + SALT_SIZE + HMAC_SHA512_SIZE;
-    rewind(fp);
-
-    fseek(fp, len - offset, SEEK_CUR);
-
-    //Read our magic header
-    fread((void*)&data, sizeof(MAGIC_HEADER), 1, fp);
-    fclose(fp);
-
-    if(data != MAGIC_HEADER)
-        return false;
-
-    return true;
-}
-
 static bool encrypt_decrypt(unsigned char *data_in, int data_in_len,
                             FILE *out, unsigned char *key,
                             unsigned char *iv, int is_encrypt)
@@ -258,6 +228,36 @@ static bool read_and_verify_hmac(const char *path, char *hmac, const void *key)
     fclose(fp);
 
     return retval;
+}
+
+bool is_file_encrypted(const char *path)
+{
+    FILE *fp = NULL;
+    int data;
+
+    fp = fopen(path, "r");
+
+    if(!fp)
+    {
+        fprintf(stderr, "Failed to open file.\n");
+        return false;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    int len = ftell(fp);
+    int offset = sizeof(int) + IV_SIZE + SALT_SIZE + HMAC_SHA512_SIZE;
+    rewind(fp);
+
+    fseek(fp, len - offset, SEEK_CUR);
+
+    //Read our magic header
+    fread((void*)&data, sizeof(MAGIC_HEADER), 1, fp);
+    fclose(fp);
+
+    if(data != MAGIC_HEADER)
+        return false;
+
+    return true;
 }
 
 bool encrypt_file(const char *passphrase, const char *path)
