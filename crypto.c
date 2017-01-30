@@ -162,6 +162,7 @@ static bool encrypt_decrypt(unsigned char *data_in, int data_in_len,
     {
         fprintf(stderr, "Unable to process data.\n");
         free(out_buffer);
+        EVP_CIPHER_CTX_free(ctx);
         return false;
     }
 
@@ -169,6 +170,7 @@ static bool encrypt_decrypt(unsigned char *data_in, int data_in_len,
     {
         fprintf(stderr, "Unable to finalize.\n");
         free(out_buffer);
+        EVP_CIPHER_CTX_free(ctx);
         return false;
     }
 
