@@ -88,6 +88,16 @@ void init_database(const char *path, int force)
     }
 }
 
+void decrypt_database(const char *path)
+{
+
+}
+
+void encrypt_database()
+{
+
+}
+
 /* Interactively adds a new entry to the database */
 bool add_new_entry()
 {

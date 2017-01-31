@@ -15,7 +15,7 @@
  * in our lock file and if the database is not
  * encrypted.
  */
-bool has_lock()
+bool has_active_database()
 {
     char *path = NULL;
 
@@ -63,7 +63,7 @@ char *get_lockfile_path()
 
 /* Reads and returns the path of currently decrypted
  * database. Caller must free the return value */
-char *read_lock()
+char *read_active_database_path()
 {
     FILE *fp = NULL;
     char *path = NULL;
@@ -102,7 +102,7 @@ char *read_lock()
     return lockpath;
 }
 
-void write_lock(const char *db_path)
+void write_active_database_path(const char *db_path)
 {
     FILE *fp = NULL;
     char *path = NULL;
