@@ -230,6 +230,8 @@ static bool read_and_verify_hmac(const char *path, char *hmac, const void *key)
     return retval;
 }
 
+//This function really just checks is the file
+//written using Titan.
 bool is_file_encrypted(const char *path)
 {
     FILE *fp = NULL;

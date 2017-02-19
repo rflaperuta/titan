@@ -115,10 +115,10 @@ int main(int argc, char *argv[])
             init_database(optarg, force);
             break;
         case 'd': //decrypt
-            decrypt_file("1q2w3e", optarg);
+            decrypt_database(optarg);
             break;
         case 'e': //encrypt
-            encrypt_file("1q2w3e", "/home/niko/testi.txt");
+            encrypt_database();
             break;
         case 'a':
             add_new_entry();

@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include "utils.h"
+#include "crypto.h"
 
 /* Function checks that we have a valid path
  * in our lock file and if the database is not
@@ -32,8 +33,12 @@ bool has_active_database()
         return false;
     }
 
-    //TODO: Check if the database is decrypted too
-    //If not it's safe to return false so we can override it
+    //If the database is encrypted, it's not active so return false
+    if(is_file_encrypted(path))
+    {
+        free(path);
+        return false;
+    }
 
     free(path);
 

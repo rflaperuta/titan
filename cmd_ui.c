@@ -14,6 +14,7 @@
 #include "entry.h"
 #include "db.h"
 #include "utils.h"
+#include "crypto.h"
 
 extern int fileno(FILE *stream);
 
@@ -83,19 +84,40 @@ void init_database(const char *path, int force)
     }
     else
     {
-        fprintf(stderr, "Existing database is decrypted. "
+        fprintf(stderr, "Existing database is already active. "
                 "Encrypt it before creating a new one.\n");
     }
 }
 
 void decrypt_database(const char *path)
 {
-
+    if(has_active_database())
+    {
+        fprintf(stderr, "Existing database is already active. "
+                "Encrypt it before decrypting another one.\n");
+                
+        return;
+    }
+    
+    size_t pwdlen = 1024;
+    char pass[pwdlen];
+    char *ptr = pass;
+    
+    my_getpass("Password: ", &ptr, &pwdlen, stdin);
+    
+    if(!decrypt_file(pass, path))
+    {
+        fprintf(stderr, "Failed to decrypt %s.\n", path);
+    }
+    
+    write_active_database_path(path);
 }
 
 void encrypt_database()
 {
-
+    encrypt_file("1q2w3e", "/home/niko/testi.txt");
+    
+    //TODO: Remember to remove the active database path (remove the "lock" file)
 }
 
 /* Interactively adds a new entry to the database */
