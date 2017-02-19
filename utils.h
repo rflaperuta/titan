@@ -13,5 +13,6 @@ void write_active_database_path(const char *db_path);
 char *read_active_database_path();
 bool has_active_database();
 void *tmalloc(size_t size);
+bool file_exists(const char *path);
 
 #endif

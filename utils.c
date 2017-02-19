@@ -12,6 +12,16 @@
 #include "utils.h"
 #include "crypto.h"
 
+bool file_exists(const char *path)
+{
+    struct stat buf;
+
+    if(stat(path, &buf) != 0)
+        return false;
+    
+    return true;
+}
+
 /* Function checks that we have a valid path
  * in our lock file and if the database is not
  * encrypted.
