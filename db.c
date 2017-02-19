@@ -98,7 +98,7 @@ bool db_insert_entry(Entry_t *entry)
     char *err = NULL;
     char *path = NULL;
 
-    path = read_lock();
+    path = read_active_database_path();
 
     if(!path)
     {
@@ -155,7 +155,7 @@ bool db_update_entry(int id, Entry_t *new_entry)
     char *err = NULL;
     char *path = NULL;
 
-    path = read_lock();
+    path = read_active_database_path();
 
     if(!path)
     {
@@ -226,7 +226,7 @@ db_get_entry_by_id(int id)
     char *err = NULL;
     Entry_t *entry = NULL;
 
-    path = read_lock();
+    path = read_active_database_path();
 
     if(!path)
     {
@@ -295,7 +295,7 @@ bool db_delete_entry(int id, bool *changes)
     char *err = NULL;
     int count;
 
-    path = read_lock();
+    path = read_active_database_path();
 
     if(!path)
     {
@@ -353,7 +353,7 @@ bool db_list_all(int show_password)
     char *err = NULL;
     sqlite3 *db;
 
-    path = read_lock();
+    path = read_active_database_path();
 
     if(!path)
     {
@@ -405,7 +405,7 @@ bool db_find(const char *search, int show_password)
     char *err = NULL;
     sqlite3 *db;
 
-    path = read_lock();
+    path = read_active_database_path();
 
     if(!path)
     {

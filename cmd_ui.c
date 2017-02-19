@@ -76,10 +76,10 @@ static size_t my_getpass(char *prompt, char **lineptr, size_t *n, FILE *stream)
 
 void init_database(const char *path, int force)
 {
-    if(!has_lock() || force == 1)
+    if(!has_active_database() || force == 1)
     {
         if(db_init_new(path))
-            write_lock(path);
+            write_active_database_path(path);
     }
     else
     {
@@ -101,7 +101,7 @@ void encrypt_database()
 /* Interactively adds a new entry to the database */
 bool add_new_entry()
 {
-    if(!has_lock())
+    if(!has_active_database())
     {
         fprintf(stderr, "No decrypted database found.\n");
         return false;
@@ -150,7 +150,7 @@ bool add_new_entry()
 
 bool edit_entry(int id)
 {
-    if(!has_lock())
+    if(!has_active_database())
     {
         fprintf(stderr, "No decrypted database found.\n");
         return false;
@@ -233,7 +233,7 @@ bool edit_entry(int id)
 
 bool remove_entry(int id)
 {
-    if(!has_lock())
+    if(!has_active_database())
     {
         fprintf(stderr, "No decrypted database found.\n");
         return false;
@@ -256,7 +256,7 @@ bool remove_entry(int id)
 
 void list_by_id(int id, int show_password)
 {
-    if(!has_lock())
+    if(!has_active_database())
     {
         fprintf(stderr, "No decrypted database found.\n");
         return;
@@ -298,7 +298,7 @@ void list_by_id(int id, int show_password)
  */
 void list_all(int show_password)
 {
-    if(!has_lock())
+    if(!has_active_database())
     {
         fprintf(stderr, "No decrypted database found.\n");
         return;
@@ -313,7 +313,7 @@ void list_all(int show_password)
  */
 void find(const char *search, int show_password)
 {
-    if(!has_lock())
+    if(!has_active_database())
     {
         fprintf(stderr, "No decrypted database found.\n");
         return;
@@ -326,7 +326,7 @@ void show_current_db_path()
 {
     char *path = NULL;
 
-    path = read_lock();
+    path = read_active_database_path();
 
     if(!path)
     {
@@ -341,11 +341,11 @@ void show_current_db_path()
 
 void set_use_db(const char *path)
 {
-    if(has_lock())
+    if(has_active_database())
     {
         fprintf(stderr, "Current database is decrypted, encrypt it first.\n");
         return;
     }
 
-    write_lock(path);
+    write_active_database_path(path);
 }
