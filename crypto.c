@@ -61,7 +61,6 @@ static Key_t generate_key(const char *passphrase, char *old_salt,
     {
         salt = tmalloc(SALT_SIZE);
         memmove(salt, old_salt, SALT_SIZE);
-        //salt = strdup(old_salt);
     }
 
     if(!salt)
