@@ -426,7 +426,6 @@ bool decrypt_file(const char *passphrase, const char *path)
         fprintf(stderr, "Key derivation failed.\n");
         free(iv);
         free(salt);
-        free(cipher_data);
         free(hmac);
         return false;
     }
@@ -438,12 +437,8 @@ bool decrypt_file(const char *passphrase, const char *path)
         fprintf(stderr, "Invalid password or tampered data. Aborted.\n");
         free(iv);
         free(salt);
-        free(cipher_data);
-        fclose(cipher);
         free(hmac);
-
-        fprintf(stderr, "Wrong passphrase or tampered data. Abort.\n");
-
+        
         return false;
     }
 
