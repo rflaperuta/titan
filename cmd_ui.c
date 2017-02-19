@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <termios.h>
-
+#include <unistd.h>
 #include "cmd_ui.h"
 #include "entry.h"
 #include "db.h"
@@ -108,6 +108,7 @@ void decrypt_database(const char *path)
     if(!decrypt_file(pass, path))
     {
         fprintf(stderr, "Failed to decrypt %s.\n", path);
+        return;
     }
     
     write_active_database_path(path);
@@ -115,9 +116,51 @@ void decrypt_database(const char *path)
 
 void encrypt_database()
 {
-    encrypt_file("1q2w3e", "/home/niko/testi.txt");
+    if(!has_active_database())
+    {
+        fprintf(stderr, "No decrypted database found.\n");
+        return;
+    }
     
-    //TODO: Remember to remove the active database path (remove the "lock" file)
+    size_t pwdlen = 1024;
+    char pass[pwdlen];
+    char *ptr = pass;
+    char *path = NULL;
+    char *lockfile_path = NULL;
+    
+    path = read_active_database_path();
+    
+    if(!path)
+    {
+        fprintf(stderr, "Unable to read activate database path.\n");
+        return;
+    }
+    
+    my_getpass("Password: ", &ptr, &pwdlen, stdin);
+    
+    //TODO: ask the pass twice to make sure user typed it correctly
+    
+    if(!encrypt_file(pass, path))
+    {
+        fprintf(stderr, "Encryption of %s failed.\n", path);
+        free(path);
+        return;
+    }
+    
+    free(path);
+    
+    lockfile_path = get_lockfile_path();
+    
+    if(!lockfile_path)
+    {
+        fprintf(stderr, "Unable to retrieve the lock file path.\n");
+        return;
+    }
+    
+    //Finally delete the file that holds the activate database path.
+    //This way we allow Titan to create a new database or open another one.
+    unlink(lockfile_path);
+    free(lockfile_path);
 }
 
 /* Interactively adds a new entry to the database */
