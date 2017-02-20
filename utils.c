@@ -132,6 +132,7 @@ void write_active_database_path(const char *db_path)
     if(!fp)
     {
         fprintf(stderr, "Error creating lock file\n");
+        free(path);
         return;
     }
 
