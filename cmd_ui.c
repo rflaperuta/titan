@@ -75,7 +75,7 @@ static size_t my_getpass(char *prompt, char **lineptr, size_t *n, FILE *stream)
     return nread;
 }
 
-void init_database(const char *path, int force)
+void init_database(const char *path, int force, int auto_encrypt)
 {
     if(!has_active_database() || force == 1)
     {
@@ -171,7 +171,7 @@ void encrypt_database()
 }
 
 /* Interactively adds a new entry to the database */
-bool add_new_entry()
+bool add_new_entry(int auto_encrypt)
 {
     if(!has_active_database())
     {
@@ -220,7 +220,7 @@ bool add_new_entry()
     return true;
 }
 
-bool edit_entry(int id)
+bool edit_entry(int id, int auto_encrypt)
 {
     if(!has_active_database())
     {
@@ -303,7 +303,7 @@ bool edit_entry(int id)
     return true;
 }
 
-bool remove_entry(int id)
+bool remove_entry(int id, int auto_encrypt)
 {
     if(!has_active_database())
     {
@@ -326,7 +326,7 @@ bool remove_entry(int id)
     return false;
 }
 
-void list_by_id(int id, int show_password)
+void list_by_id(int id, int show_password, int auto_encrypt)
 {
     if(!has_active_database())
     {
@@ -368,7 +368,7 @@ void list_by_id(int id, int show_password)
  * While it's ok for the command line, but if we ever need GUI
  * then this needs to be designed better using a linked list etc.
  */
-void list_all(int show_password)
+void list_all(int show_password, int auto_encrypt)
 {
     if(!has_active_database())
     {
@@ -383,7 +383,7 @@ void list_all(int show_password)
  * This is ok for the command line version of Titan. However
  * better design is needed _if_ GUI version will be developed.
  */
-void find(const char *search, int show_password)
+void find(const char *search, int show_password, int auto_encrypt)
 {
     if(!has_active_database())
     {

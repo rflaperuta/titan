@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
             /* Handle flags here automatically */
             break;
         case 'i':
-            init_database(optarg, force);
+            init_database(optarg, force, auto_encrypt);
             break;
         case 'd': //decrypt
             decrypt_database(optarg);
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
             encrypt_database();
             break;
         case 'a':
-            add_new_entry();
+            add_new_entry(auto_encrypt);
             break;
         case 's':
             show_current_db_path();
@@ -130,21 +130,21 @@ int main(int argc, char *argv[])
             usage();
             break;
         case 'r':
-            remove_entry(atoi(optarg));
+            remove_entry(atoi(optarg), auto_encrypt);
             break;
         case 'u':
             set_use_db(optarg);
         case 'f':
-            find(optarg, show_password);
+            find(optarg, show_password, auto_encrypt);
             break;
         case 'c':
-            edit_entry(atoi(optarg));
+            edit_entry(atoi(optarg), auto_encrypt);
             break;
         case 'l':
-            list_by_id(atoi(optarg), show_password);
+            list_by_id(atoi(optarg), show_password, auto_encrypt);
             break;
         case 'A':
-            list_all(show_password);
+            list_all(show_password, auto_encrypt);
             break;
         case 'V':
             version();
@@ -155,7 +155,8 @@ int main(int argc, char *argv[])
         case 'q':
             auto_encrypt = 1;
             show_password = 1;
-            find(optarg, show_password); //TODO: every cmd_ui function also needs to take auto_encrypt parameter
+            find(optarg, show_password, auto_encrypt); //TODO: implement auto_encrypt. it's only possible to use it if database is encrypted
+            //first decrypt, then keep the passphrase in a stack and use it to encrypt after the operation
             break;
         case '?':
             usage();
